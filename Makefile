@@ -2,7 +2,7 @@
 .SUFFIXES:
 
 LINT=shellcheck
-TEST=unittest
+TEST=./unittest
 TEST_SRC=https://raw.githubusercontent.com/macie/unittest.sh/master/unittest
 
 # MAIN TARGETS
@@ -10,30 +10,32 @@ TEST_SRC=https://raw.githubusercontent.com/macie/unittest.sh/master/unittest
 all: test check
 
 clean:
-	@echo "> Delete $(TEST)" >&2
-	rm $(TEST)
+	@echo '# Delete test runner: rm $(TEST)' >&2
+	@rm $(TEST)
 
 debug:
-	@echo "> List development dependencies" >&2
-	@echo; $(LINT) -V
-	@echo; ./$(TEST) -v
+	@printf '# OS info: '
+	@uname -rsv;
+	@echo '# Development dependencies:'
+	@echo; $(LINT) -V || true
+	@echo; $(TEST) -v || true
 
 check: $(LINT)
-	@echo "> Start static analysis" >&2
-	$(LINT) smallstache tests/*.sh
+	@printf '# Static analysis: $(LINT) smallstache tests/*.sh' >&2
+	@$(LINT) smallstache tests/*.sh
 	
 test: $(TEST)
-	@echo "> Start unit tests" >&2
-	./$(TEST)
+	@echo '# Unit tests: $(TEST)' >&2
+	@$(TEST)
 
 # HELPERS
 
 $(LINT):
-	@echo "> Show where $@ is installed:" >&2
+	@printf '# $@ installation path: ' >&2
 	@command -v $@ >&2 || { echo "ERROR: Cannot find $@" >&2; exit 1; }
 
 $(TEST):
-	@echo "> Prepare $@" >&2
+	@echo '# Prepare $@:' >&2
 	curl -fLO $(TEST_SRC)
 	chmod +x $@
 
