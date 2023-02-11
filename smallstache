@@ -1,0 +1,42 @@
+#!/bin/sh
+
+case $# in
+	0)
+		echo 'smallstache: No template provided' >&2
+		exit 64
+		;;
+	1)
+		case $1 in
+			-h|--help)
+				cat >&2 <<-'EOF'
+					smallstache - logic-less template engine for shell scripts.
+					Usage:
+					  smallstache [options] template_file
+
+					Options:
+					  -h, --help                      Show this help and exit
+					  -v, --version                   Show version number and exit.
+					EOF
+				exit 0
+				;;
+			-v|--version)
+				echo 'smallstache 23.0' >&2
+				exit 0
+				;;
+			*)
+				if [ ! -s "$1" ]; then
+					echo 'smallstache: Empty template provided' >&2
+					exit 64
+				fi
+				;;
+		esac
+		;;
+	2)
+		echo 'smallstache: Too many parameters' >&2
+		exit 64
+		;;
+esac
+
+smallstache_regex=$(sed 's_\([^=]*\)=\(.*\)_s|{{ *\1 *}}|\2|g; _g')
+sed -e "${smallstache_regex}" "$1"
+

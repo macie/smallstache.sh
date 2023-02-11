@@ -11,8 +11,7 @@
 !Makefile
 !.circleci/*
 
-!*.sh
-
-# ...even if they are in subdirectories
-!*/
+!smallstache
+!tests/
+!tests/*.sh
 
