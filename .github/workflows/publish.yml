@@ -1,0 +1,69 @@
+name: Publish
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Run checks
+        run: make
+
+      - run: make dist
+
+      - name: Save build artifacts
+        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
+        with:
+          name: binaries
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error
+
+  release:
+    needs: build
+
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            uploads.github.com:443
+
+      - name: Extract build artifacts
+        uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
+        with:
+          name: binaries
+
+      - name: Prepare release
+        uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # v1.13.0
+        with:
+          allowUpdates: true
+          generateReleaseNotes: true
+          artifacts: "*"
