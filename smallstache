@@ -1,6 +1,13 @@
 #!/bin/sh
+#
+# smallstache - logic-less template engine for shell scripts.
+# <https://github.com/macie/unittest.sh>
+#
+# Copyright (c) 2023 Maciej Żok
+# SPDX-License-Identifier: MIT
 
 
+# following line is used by `make cli-release`
 smallstache_version=23.0
 
 case $# in
