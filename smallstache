@@ -8,7 +8,7 @@
 
 
 # following line is used by `make cli-release`
-smallstache_version=23.0
+smallstache_version=24.1
 
 case $# in
 	0)
