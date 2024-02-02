@@ -1,5 +1,8 @@
 #!/bin/sh
 
+
+smallstache_version=23.0
+
 case $# in
 	0)
 		echo 'smallstache: No template provided' >&2
@@ -20,7 +23,7 @@ case $# in
 				exit 0
 				;;
 			-v|--version)
-				echo 'smallstache 23.0' >&2
+				printf 'smallstache %s\n' "${smallstache_version}" >&2
 				exit 0
 				;;
 			*)
@@ -39,4 +42,3 @@ esac
 
 smallstache_regex=$(sed 's_\([^=]*\)=\(.*\)_s|{{ *\1 *}}|\2|g; _g')
 sed -e "${smallstache_regex}" "$1"
-
