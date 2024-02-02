@@ -64,6 +64,11 @@ test: $(TEST)
 	@echo '# Unit tests: $(TEST)' >&2
 	@$(TEST)
 
+.PHONY: install
+install:
+	@echo '# Install in /usr/local/bin' >&2
+	@mkdir -p /usr/local/bin; cp $(CLI) /usr/local/bin/
+
 .PHONY: dist
 dist:
 	@echo '# Copy CLI executable to $(DESTDIR)/$(CLI)' >&2
