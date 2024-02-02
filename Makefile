@@ -13,7 +13,7 @@ clean:
 	@echo '# Delete test runner: rm $(TEST)' >&2
 	@rm $(TEST)
 
-debug:
+info:
 	@printf '# OS info: '
 	@uname -rsv;
 	@echo '# Development dependencies:'
