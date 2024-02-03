@@ -10,6 +10,8 @@
 # following line is used by `make cli-release`
 smallstache_version=24.1
 
+smallstache_verbosity_level=0
+
 # parse flags
 for arg in "$@"; do
 	case "$arg" in
@@ -22,12 +24,13 @@ for arg in "$@"; do
 				smallstache - logic-less template engine for shell.
 
 				Usage:
-				   smallstache TEMPLATE_FILE
+				   smallstache [options] TEMPLATE_FILE
 				   smallstache [-h | --help] [-v | --version]
 
 				Options:
 				   -h, --help             Show this help and exit.
 				   -v, --version          Show version number and exit.
+				   --verbose              Print debugging messages.
 
 				Value from stdin KEY=VALUE pairs substitutes `{{KEY}}` in TEMPLATE_FILE.
 				EOF
@@ -40,6 +43,10 @@ for arg in "$@"; do
 			fi
 			printf 'smallstache %s\n' "${smallstache_version}" >&2
 			exit 0
+			;;
+		--verbose)
+			smallstache_verbosity_level=1
+			shift
 			;;
 		-*)
 			echo 'smallstache: unknown option. See "smallstache -h" for help' >&2
@@ -72,4 +79,9 @@ esac
 
 # transform each stdin line in form `KEY=VALUE` into `s|{{ *KEY *}}|VALUE|g; `
 smallstache_regex=$(sed 's_\([^=]*\)=\(.*\)_s|{{ *\1 *}}|\2|g; _g')
+if [ "${smallstache_verbosity_level}" -gt 0 ]; then
+	echo '# Sed commands to be used on template file' >&2
+	echo "${smallstache_regex}" >&2 
+fi
+
 sed -e "${smallstache_regex}" "$1"

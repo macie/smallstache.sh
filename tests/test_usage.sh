@@ -30,6 +30,15 @@ test_version() {
     test -s "${FIXTURES}/error_msg"
 }
 
+test_verbose() {
+    touch "${FIXTURES}/empty_file"
+    echo 'key=value' | ./smallstache --verbose /dev/null >"${FIXTURES}/got" 2>"${FIXTURES}/error_msg"
+
+    test $? -eq 0
+    test -s "${FIXTURES}/error_msg"
+    diff "${FIXTURES}/empty_file" "${FIXTURES}/got"
+}
+
 test_no_args() {
     ./smallstache 2>"${FIXTURES}/error_msg"
 
@@ -51,7 +60,7 @@ test_3_args() {
     test -s "${FIXTURES}/error_msg"
 }
 
-test_1_option() {
+test_invalid_option() {
     ./smallstache -h /dev/null 2>"${FIXTURES}/error_msg"
 
     test $? -eq 64
@@ -59,7 +68,7 @@ test_1_option() {
 }
 
 test_2_options() {
-    ./smallstache -h -v /dev/null 2>"${FIXTURES}/error_msg"
+    ./smallstache -h --verbose /dev/null 2>"${FIXTURES}/error_msg"
 
     test $? -eq 64
     test -s "${FIXTURES}/error_msg"
