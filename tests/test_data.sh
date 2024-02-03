@@ -46,3 +46,25 @@ test_partial() {
     diff "${FIXTURES}/want" "${FIXTURES}/got" >&2
 }
 
+test_multiline() {
+    cat >"${FIXTURES}/template" <<-'EOF'
+		Numbah {{ day_no }} day of Christmas
+		My tutu gave to me
+		{{ gifts }}
+		EOF
+    cat >"${FIXTURES}/data" <<-'EOF'
+		day_no=three
+		gifts=3 dried squid\n2 coconuts and\nOne mynah bird in one papaya tree
+		EOF
+    cat >"${FIXTURES}/want" <<-'EOF'
+		Numbah three day of Christmas
+		My tutu gave to me
+		3 dried squid
+		2 coconuts and
+		One mynah bird in one papaya tree
+		EOF
+
+    <"${FIXTURES}/data" ./smallstache "${FIXTURES}/template" >"${FIXTURES}/got"
+
+    diff "${FIXTURES}/want" "${FIXTURES}/got" >&2
+}
