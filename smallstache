@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# smallstache - logic-less template engine for shell scripts.
-# <https://github.com/macie/unittest.sh>
+# smallstache - logic-less template engine for shell.
+# <https://github.com/macie/smallstache.sh>
 #
 # Copyright (c) 2023 Maciej Żok
 # SPDX-License-Identifier: MIT
@@ -12,20 +12,24 @@ smallstache_version=24.1
 
 case $# in
 	0)
-		echo 'smallstache: No template provided' >&2
+		echo 'smallstache: no template provided. See "smallstache -h" for help' >&2
 		exit 64
 		;;
 	1)
 		case $1 in
 			-h|--help)
 				cat >&2 <<-'EOF'
-					smallstache - logic-less template engine for shell scripts.
+					smallstache - logic-less template engine for shell.
+
 					Usage:
-					  smallstache [options] template_file
+					   smallstache TEMPLATE_FILE
+					   smallstache [-h | --help] [-v | --version]
 
 					Options:
-					  -h, --help                      Show this help and exit
-					  -v, --version                   Show version number and exit.
+					   -h, --help             Show this help and exit.
+					   -v, --version          Show version number and exit.
+
+					Value from stdin KEY=VALUE pairs substitutes `{{KEY}}` in TEMPLATE_FILE.
 					EOF
 				exit 0
 				;;
@@ -35,17 +39,18 @@ case $# in
 				;;
 			*)
 				if [ ! -s "$1" ]; then
-					echo 'smallstache: Empty template provided' >&2
+					printf 'smallstache: file %s is empty' "$1" >&2
 					exit 64
 				fi
 				;;
 		esac
 		;;
 	2)
-		echo 'smallstache: Too many parameters' >&2
+		echo 'smallstache: too many arguments. See "smallstache -h" for help' >&2
 		exit 64
 		;;
 esac
 
+# transform each stdin line in form `KEY=VALUE` into `s|{{ *KEY *}}|VALUE|g; `
 smallstache_regex=$(sed 's_\([^=]*\)=\(.*\)_s|{{ *\1 *}}|\2|g; _g')
 sed -e "${smallstache_regex}" "$1"
