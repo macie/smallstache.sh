@@ -38,8 +38,12 @@ case $# in
 				exit 0
 				;;
 			*)
-				if [ ! -s "$1" ]; then
-					printf 'smallstache: file %s is empty' "$1" >&2
+				if [ ! -e "$1" ]; then
+					printf 'smallstache: file %s does not exist\n' "$1" >&2
+					exit 64
+				fi
+				if [ ! -f "$1" ] && [ ! -c "$1" ]; then
+					printf 'smallstache: %s is not a file' "$1" >&2
 					exit 64
 				fi
 				;;

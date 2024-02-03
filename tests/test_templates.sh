@@ -16,16 +16,33 @@ afterAll() {
 # TEST CASES
 #
 
-test_nothing() {
-    echo 'key=val' | ./smallstache 2>/dev/null
+test_no_template() {
+    ./smallstache 2>"${FIXTURES}/error_msg"
 
     test $? -eq 64
+    test -s "${FIXTURES}/error_msg"
 }
 
-test_null() {
-    echo 'key=val' | ./smallstache /dev/null 2>/dev/null
+test_nonexistent() {
+    ./smallstache "${FIXTURES}/nonexistent_file" 2>"${FIXTURES}/error_msg"
 
     test $? -eq 64
+    test -s "${FIXTURES}/error_msg"
+}
+
+test_device() {
+    touch "${FIXTURES}/empty_file"
+    echo 'key=val' | ./smallstache /dev/null >"${FIXTURES}/got"
+
+    test $? -eq 0
+    diff "${FIXTURES}/empty_file" "${FIXTURES}/got" >&2
+}
+
+test_directory() {
+    ./smallstache / 2>"${FIXTURES}/error_msg"
+
+    test $? -eq 64
+    test -s "${FIXTURES}/error_msg"
 }
 
 test_empty() {
