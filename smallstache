@@ -49,7 +49,7 @@ case $# in
 				;;
 		esac
 		;;
-	2)
+	*)
 		echo 'smallstache: too many arguments. See "smallstache -h" for help' >&2
 		exit 64
 		;;
