@@ -10,44 +10,59 @@
 # following line is used by `make cli-release`
 smallstache_version=24.1
 
-case $# in
+# parse flags
+for arg in "$@"; do
+	case "$arg" in
+		-h|--help)
+			if [ "$#" -gt 1 ]; then
+				echo 'smallstache: invalid arguments. See "smallstache -h" for help' >&2
+				exit 64
+			fi
+			cat >&2 <<-'EOF'
+				smallstache - logic-less template engine for shell.
+
+				Usage:
+				   smallstache TEMPLATE_FILE
+				   smallstache [-h | --help] [-v | --version]
+
+				Options:
+				   -h, --help             Show this help and exit.
+				   -v, --version          Show version number and exit.
+
+				Value from stdin KEY=VALUE pairs substitutes `{{KEY}}` in TEMPLATE_FILE.
+				EOF
+			exit 0
+			;;
+		-v|--version)
+			if [ "$#" -gt 1 ]; then
+				echo 'smallstache: invalid arguments. See "smallstache -h" for help' >&2
+				exit 64
+			fi
+			printf 'smallstache %s\n' "${smallstache_version}" >&2
+			exit 0
+			;;
+		-*)
+			echo 'smallstache: unknown option. See "smallstache -h" for help' >&2
+			exit 64
+			;;
+	esac
+done
+
+# validate template
+case "$#" in
 	0)
 		echo 'smallstache: no template provided. See "smallstache -h" for help' >&2
 		exit 64
 		;;
 	1)
-		case $1 in
-			-h|--help)
-				cat >&2 <<-'EOF'
-					smallstache - logic-less template engine for shell.
-
-					Usage:
-					   smallstache TEMPLATE_FILE
-					   smallstache [-h | --help] [-v | --version]
-
-					Options:
-					   -h, --help             Show this help and exit.
-					   -v, --version          Show version number and exit.
-
-					Value from stdin KEY=VALUE pairs substitutes `{{KEY}}` in TEMPLATE_FILE.
-					EOF
-				exit 0
-				;;
-			-v|--version)
-				printf 'smallstache %s\n' "${smallstache_version}" >&2
-				exit 0
-				;;
-			*)
-				if [ ! -e "$1" ]; then
-					printf 'smallstache: file %s does not exist\n' "$1" >&2
-					exit 64
-				fi
-				if [ ! -f "$1" ] && [ ! -c "$1" ]; then
-					printf 'smallstache: %s is not a file' "$1" >&2
-					exit 64
-				fi
-				;;
-		esac
+		if [ ! -e "$1" ]; then
+			printf 'smallstache: file %s does not exist\n' "$1" >&2
+			exit 64
+		fi
+		if [ ! -f "$1" ] && [ ! -c "$1" ]; then
+			printf 'smallstache: %s is not a file' "$1" >&2
+			exit 64
+		fi
 		;;
 	*)
 		echo 'smallstache: too many arguments. See "smallstache -h" for help' >&2
