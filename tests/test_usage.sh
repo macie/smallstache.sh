@@ -39,6 +39,13 @@ test_verbose() {
     diff "${FIXTURES}/empty_file" "${FIXTURES}/got"
 }
 
+test_invalid_delimiter() {
+    ./smallstache -d __ 2>"${FIXTURES}/error_msg"
+
+    test $? -eq 64
+    test -s "${FIXTURES}/error_msg"
+}
+
 test_no_args() {
     ./smallstache 2>"${FIXTURES}/error_msg"
 

@@ -110,6 +110,19 @@ cat result
 
 For more information, see [ARG_MAX, maximum length of arguments for a new process](https://www.in-ulm.de/~mascheck/various/argmax/).
 
+### unknown option to `s'
+
+`smallstache` uses special character to separate key-value pairs in substitution
+command (default: `|`). When value contains this character, `smallstache` will
+throw an error similar to:
+
+```
+sed: -e expression #1, char 24: unknown option to `s'
+```
+
+In such case, you should use another character as a delimiter, for example:
+`smallstache -d _`.
+
 ## License
 
 [MIT](./LICENSE) ([explanation in simple words](https://tldrlegal.com/license/mit-license))

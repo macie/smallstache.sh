@@ -8,13 +8,31 @@
 
 
 # following line is used by `make cli-release`
-smallstache_version=24.1
+smallstache_version=24.02
 
+smallstache_delimiter='|'
 smallstache_verbosity_level=0
 
 # parse flags
 for arg in "$@"; do
 	case "$arg" in
+		-d)
+			shift
+			case "$1" in
+				-*)
+					echo 'smallstache: missing delimiter. See "smallstache -h" for help' >&2
+					exit 64
+					;;
+				*)
+					if [ "${#1}" -ne 1 ]; then
+						echo 'smallstache: invalid delimiter. See "smallstache -h" for help' >&2
+						exit 64
+					fi
+					smallstache_delimiter="$1"
+					shift
+					;;
+			esac
+			;;
 		-h|--help)
 			if [ "$#" -gt 1 ]; then
 				echo 'smallstache: invalid arguments. See "smallstache -h" for help' >&2
@@ -28,11 +46,13 @@ for arg in "$@"; do
 				   smallstache [-h | --help] [-v | --version]
 
 				Options:
+				   -d CHAR                Use CHAR as a regex delimiter (default: `|`).
 				   -h, --help             Show this help and exit.
 				   -v, --version          Show version number and exit.
 				   --verbose              Print debugging messages.
 
 				Value from stdin KEY=VALUE pairs substitutes `{{KEY}}` in TEMPLATE_FILE.
+				Stdin cannot contain CHAR delimiter.
 				EOF
 			exit 0
 			;;
@@ -77,11 +97,17 @@ case "$#" in
 		;;
 esac
 
+smallstache_template=$1
+
 # transform each stdin line in form `KEY=VALUE` into `s|{{ *KEY *}}|VALUE|g; `
-smallstache_regex=$(sed 's_\([^=]*\)=\(.*\)_s|{{ *\1 *}}|\2|g; _g')
+smallstache_sed_regex="s_\([^=]*\)=\(.*\)_s${smallstache_delimiter}{{ *\1 *}}${smallstache_delimiter}\2${smallstache_delimiter}g; _g"
+if ! smallstache_sed_command=$(sed "${smallstache_sed_regex}" 2>/dev/null); then
+	printf 'smallstache: key contains delimiter character "%s". Change delimiter with "smallstache -d CHAR"\n' "${smallstache_delimiter}" >&2
+	exit 64
+fi
 if [ "${smallstache_verbosity_level}" -gt 0 ]; then
 	echo '# Sed commands to be used on template file' >&2
-	echo "${smallstache_regex}" >&2 
+	echo "${smallstache_sed_command}" >&2 
 fi
 
-sed -e "${smallstache_regex}" "$1"
+sed -e "${smallstache_sed_command}" "${smallstache_template}"
