@@ -81,32 +81,34 @@ Use `make` (GNU or BSD):
 
 ## Known bugs
 
-Current version handles limited size of data. When you exceed the limit you will see error:
+### Argument list too long
 
-```bash
-./smallstache[41]: sed: Argument list too long
+`smallstache` handles limited length of key-value pairs. When you exceed
+the limit, you will see an error such as:
+
+```
+smallstache[41]: sed: Argument list too long
 ```
 
-You can find the limit with:
+As a workaround, fill template in parts with following steps:
 
 ```bash
-getconf ARG_MAX
-```
-
-As a workaround you may try to save output to file, split it and fill template in a loop:
-
-```bash
+# save key-value pairs to a few parts
 set >data
 split -l 2000 -a 5 data data_part_
-cat template >filled_template
-for d in data_part_*; do
-	<"$d" ./smallstache filled_template >temp
-	cat temp >filled_template
+
+# fill the template
+cp template result
+for part in data_part_*; do
+	smallstache result <"$part" >partially_filled
+	cp partially_filled result
 done
-cat filled_template
+
+# see the result
+cat result
 ```
 
-(more info: _[ARG_MAX, maximum length of arguments for a new process](https://www.in-ulm.de/~mascheck/various/argmax/)_)
+For more information, see [ARG_MAX, maximum length of arguments for a new process](https://www.in-ulm.de/~mascheck/various/argmax/).
 
 ## License
 

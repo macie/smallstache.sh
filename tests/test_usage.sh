@@ -73,3 +73,14 @@ test_2_options() {
     test $? -eq 64
     test -s "${FIXTURES}/error_msg"
 }
+
+test_too_long_args() {
+    printf 'key=' >"${FIXTURES}/data"
+    head -c "$(getconf ARG_MAX)" /dev/zero | tr '\0' 'x' >>"${FIXTURES}/data"
+    echo 'Key is equal to: {{ key }}' >"${FIXTURES}/template"
+
+    ./smallstache "${FIXTURES}/template" <"${FIXTURES}/data" 2>"${FIXTURES}/error_msg"
+
+    test $? -eq 126
+    test -s "${FIXTURES}/error_msg"
+}
