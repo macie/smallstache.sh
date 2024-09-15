@@ -13,6 +13,7 @@ on:
     - cron: '25 23 * * 4'
   push:
     branches: [ "dev" ]
+  pull_request:
 
 # Declare default permissions as read only.
 permissions: read-all
@@ -29,6 +30,24 @@ jobs:
       # Uncomment the permissions below if installing in a private repository.
       # contents: read
       # actions: read
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
+            api.github.com:443
+            www.bestpractices.dev:443
+            api.deps.dev:443
+            oss-fuzz-build-logs.storage.googleapis.com:443
+            api.osv.dev:443
+            fulcio.sigstore.dev:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            api.scorecard.dev:443
+            api.securityscorecards.dev:443
 
     steps:
       - name: "Checkout code"
